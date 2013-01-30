@@ -1,0 +1,15 @@
+/.build/
+/_build/
+/blib/
+/Build
+/Build.bat
+Makefile
+/META.*
+/MYMETA.*
+/pm_to_blib
+WebService-Google-Voice-SendSMS-*.tar.gz
+WebService-Google-Voice-SendSMS-*/
+/test-results/
+*.c
+*.obj
+*.pdb
