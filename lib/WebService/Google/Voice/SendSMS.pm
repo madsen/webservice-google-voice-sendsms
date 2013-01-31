@@ -89,7 +89,8 @@ sub _get_rnr_se
   $self->{lastURL} = $rsp->request->uri;
 
   my $cref = $rsp->decoded_content(ref => 1);
-  $$cref =~ /<input.*?name="_rnr_se".*?value="(.*?)"/s or die "no rnr : $$cref";
+  $$cref =~ /<input[^>]*?name="_rnr_se"[^>]*?value="([^"]*)"/s
+      or die "unable to find _rnr_se in $$cref";
 
   return $1;
 } # end _get_rnr_se
