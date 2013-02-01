@@ -61,8 +61,6 @@ sub _login
     source      => 'org.cpan.WebService.Google.Voice.SendSMS',
   ]);
 
-  $req->referer($self->{lastURL});
-
   my $rsp = $self->{ua}->request($req);
   die $rsp->status_line unless $rsp->is_success;
   $self->{lastURL} = $rsp->request->uri;
@@ -70,23 +68,32 @@ sub _login
   my $cref = $rsp->decoded_content(ref => 1);
   $$cref =~ /Auth=([A-z0-9_-]+)/ or die "no auth: $$cref";
 
-  return $self->{login_auth} = $1;
-}
+  return $1;
+} # end _login
+
+sub _make_request
+{
+  my ($self, $req) = @_;
+
+  $req->header(Authorization =>
+               'GoogleLogin auth=' . ($self->{login_auth} ||= $self->_login));
+  $req->referer($self->{lastURL});
+
+  my $rsp = $self->{ua}->request($req);
+
+  $self->{lastURL} = $rsp->request->uri if $rsp->is_success;
+
+  $rsp;
+} # end _make_request
 
 sub _get_rnr_se
 {
   my $self = shift;
 
-  my $login_auth = $self->_login;
-
   my $req = HTTP::Request::Common::GET($self->inboxURL);
 
-  $req->header(Authorization => "GoogleLogin auth=$login_auth");
-  #$req->referer($self->{lastURL});
-
-  my $rsp = $self->{ua}->request($req);
+  my $rsp = $self->_make_request($req);
   die $rsp->status_line unless $rsp->is_success;
-  $self->{lastURL} = $rsp->request->uri;
 
   my $cref = $rsp->decoded_content(ref => 1);
   $$cref =~ /<input[^>]*?name="_rnr_se"[^>]*?value="([^"]*)"/s
@@ -107,12 +114,7 @@ sub send_sms
     _rnr_se => $self->_get_rnr_se,
   ]);
 
-  $req->header(Authorization => "GoogleLogin auth=$self->{login_auth}");
-  $req->referer($self->{lastURL});
-
-  my $rsp = $self->{ua}->request($req);
-  $self->{lastURL} = $rsp->request->uri;
-  return $rsp->is_success;
+  return $self->_make_request($req)->is_success;
 } # end send_sms
 
 #=====================================================================
