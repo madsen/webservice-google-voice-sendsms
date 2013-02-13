@@ -32,6 +32,7 @@ our $VERSION = '0.01';
 sub inboxURL { 'https://www.google.com/voice/m/' }
 sub loginURL { 'https://www.google.com/accounts/ClientLogin' }
 sub smsURL   { 'https://www.google.com/voice/m/sendsms' }
+#---------------------------------------------------------------------
 
 sub new
 {
@@ -49,21 +50,25 @@ sub new
   }, $class;
 } # end new
 
+#---------------------------------------------------------------------
+# Get and return the Google authorization credential
+#
+# Called automatically by _make_request when needed
+
 sub _login
 {
   my $self = shift;
 
-  my $req = HTTP::Request::Common::POST($self->loginURL, [
-    accountType => 'GOOGLE',
-    Email       => $self->{username},
-    Passwd      => $self->{password},
-    service     => 'grandcentral',
-    source      => 'org.cpan.WebService.Google.Voice.SendSMS',
-  ]);
-
-  my $rsp = $self->{ua}->request($req);
-  die $rsp->status_line unless $rsp->is_success;
-  $self->{lastURL} = $rsp->request->uri;
+  my $rsp = $self->_make_request(
+    HTTP::Request::Common::POST($self->loginURL, [
+      accountType => 'GOOGLE',
+      Email       => $self->{username},
+      Passwd      => $self->{password},
+      service     => 'grandcentral',
+      source      => 'org.cpan.WebService.Google.Voice.SendSMS',
+    ]),
+    { no_headers => 1 }    # Can't add authorization, we're logging in
+  );
 
   my $cref = $rsp->decoded_content(ref => 1);
   $$cref =~ /Auth=([A-z0-9_-]+)/ or die "no auth: $$cref";
@@ -71,29 +76,41 @@ sub _login
   return $1;
 } # end _login
 
+#---------------------------------------------------------------------
+# Send a request via our UA and return the response:
+#
+# Options may be passed in $args hashref:
+#   allow_failure:  if true, do not die if request is unsuccessful
+#   no_headers:     if true, omit Authorization & Referer headers
+
 sub _make_request
 {
-  my ($self, $req) = @_;
+  my ($self, $req, $args) = @_;
 
-  $req->header(Authorization =>
-               'GoogleLogin auth=' . ($self->{login_auth} ||= $self->_login));
-  $req->referer($self->{lastURL});
+  unless ($args->{no_headers}) {
+    $req->header(Authorization =>
+                 'GoogleLogin auth=' . ($self->{login_auth} ||= $self->_login));
+    $req->referer($self->{lastURL});
+  }
 
   my $rsp = $self->{ua}->request($req);
 
-  $self->{lastURL} = $rsp->request->uri if $rsp->is_success;
+  if ($rsp->is_success) {
+    $self->{lastURL} = $rsp->request->uri;
+  } else {
+    die "HTTP request failed: " . $rsp->status_line
+        unless $args->{allow_failure};
+  }
 
   $rsp;
 } # end _make_request
 
+#---------------------------------------------------------------------
 sub _get_rnr_se
 {
   my $self = shift;
 
-  my $req = HTTP::Request::Common::GET($self->inboxURL);
-
-  my $rsp = $self->_make_request($req);
-  die $rsp->status_line unless $rsp->is_success;
+  my $rsp = $self->_make_request(HTTP::Request::Common::GET($self->inboxURL));
 
   my $cref = $rsp->decoded_content(ref => 1);
   $$cref =~ /<input[^>]*?name="_rnr_se"[^>]*?value="([^"]*)"/s
@@ -101,6 +118,7 @@ sub _get_rnr_se
 
   return $1;
 } # end _get_rnr_se
+#---------------------------------------------------------------------
 
 sub send_sms
 {
@@ -114,7 +132,7 @@ sub send_sms
     _rnr_se => $self->_get_rnr_se,
   ]);
 
-  return $self->_make_request($req)->is_success;
+  return $self->_make_request($req, { allow_failure => 1 })->is_success;
 } # end send_sms
 
 #=====================================================================
