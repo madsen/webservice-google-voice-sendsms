@@ -34,6 +34,16 @@ sub loginURL { 'https://www.google.com/accounts/ClientLogin' }
 sub smsURL   { 'https://www.google.com/voice/m/sendsms' }
 #---------------------------------------------------------------------
 
+=method new
+
+  $s = WebService::Google::Voice::SendSMS->new($username, $password);
+
+Create a new SendSMS object.  This does not perform any network
+request.  Pass the C<$username> (e.g. C<your.name@gmail.com>) and
+C<$password> you use to login to your Google Voice account.
+
+=cut
+
 sub new
 {
   my ($class, $username, $password) = @_;
@@ -120,6 +130,17 @@ sub _get_rnr_se
 } # end _get_rnr_se
 #---------------------------------------------------------------------
 
+=method send_sms
+
+  $success = $s->send_sms($phone_number, $message);
+
+Send an SMS saying C<$message> to C<$phone_number>.  The SMS will be
+sent by your Google Voice phone number.  C<$success> is true if the
+message was accepted by Google Voice (which does not necessarily mean
+that it was successfully delivered to the intended recipient).
+
+=cut
+
 sub send_sms
 {
   my ($self, $number, $message) = @_;
@@ -151,3 +172,33 @@ __END__
   );
 
   $sender->send_sms($phone_number => $message);
+
+=head1 DESCRIPTION
+
+WebService::Google::Voice::SendSMS allows you to send SMS messages
+using your Google Voice account (L<https://www.google.com/voice>).
+
+
+=head1 SEE ALSO
+
+L<Google::Voice> is a much more complete API for Google Voice.
+However, I was unable to get it to login successfully.
+
+WebService::Google::Voice::SendSMS is heavily based on
+L<http://code.google.com/p/phpgooglevoice/> by LostLeon.  It started
+life as a Perl translation of the PHP code, but it's been refactored
+substantially since then.
+
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+WebService::Google::Voice::SendSMS uses L<LWP::UserAgent> for sending
+requests to Google Voice, so it's influenced by the environment
+variables that configure that (especially the SSL options).
+
+
+=head1 BUGS AND LIMITATIONS
+
+WebService::Google::Voice::SendSMS can only send SMS messages. It
+can't receive them, retrieve the history of sent messages, or access
+any other Google Voice features.

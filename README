@@ -1,7 +1,8 @@
 WebService-Google-Voice-SendSMS version {{$version}}, released {{$date}}
 
 
-This module {{ die "needs a description (README.md too)" }}.
+This module allows you to send SMS messages using your Google Voice
+account.  It's based on the phpgooglevoice class by LostLeon.
 
 
 
