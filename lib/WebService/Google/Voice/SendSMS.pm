@@ -21,6 +21,7 @@ use 5.008;
 use strict;
 use warnings;
 
+use Carp ();
 use LWP::UserAgent 6 ();
 use HTTP::Request::Common ();
 
@@ -83,7 +84,8 @@ sub _login
   );
 
   my $cref = $rsp->decoded_content(ref => 1);
-  $$cref =~ /Auth=([A-z0-9_-]+)/ or die "no auth: $$cref";
+  $$cref =~ /Auth=([A-z0-9_-]+)/
+      or Carp::croak("SendSMS: Unable to find Auth in response");
 
   return $1;
 } # end _login
@@ -112,12 +114,28 @@ sub _make_request
   if ($rsp->is_success) {
     $self->{lastURL} = $rsp->request->uri;
   } else {
-    die "HTTP request failed: " . $rsp->status_line
+    Carp::croak("SendSMS: HTTP request failed: " . $rsp->status_line)
         unless $args->{allow_failure};
   }
 
   $rsp;
 } # end _make_request
+
+=diag C<< SendSMS: HTTP request failed: %d %s >>
+
+This indicates that we received an HTTP error after sending a request
+to Google.  The HTTP status code and message are included.  The most
+common error is C<403 Forbidden>, which indicates that you've used the
+wrong username or password.
+
+=diag C<< SendSMS: Unable to find %s in response >>
+
+This indicates that the response we got from Google did not look like
+what we expected.  Perhaps Google has changed their website.  Look for
+an updated version of WebService::Google::Voice::SendSMS.  If no
+update is available, report a bug.
+
+=cut
 
 #---------------------------------------------------------------------
 sub _get_rnr_se
@@ -128,7 +146,7 @@ sub _get_rnr_se
 
   my $cref = $rsp->decoded_content(ref => 1);
   $$cref =~ /<input[^>]*?name="_rnr_se"[^>]*?value="([^"]*)"/s
-      or die "unable to find _rnr_se in $$cref";
+      or Carp::croak("SendSMS: Unable to find _rnr_se in response");
 
   return $1;
 } # end _get_rnr_se
