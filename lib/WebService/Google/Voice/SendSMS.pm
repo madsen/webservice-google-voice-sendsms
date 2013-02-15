@@ -202,3 +202,6 @@ variables that configure that (especially the SSL options).
 WebService::Google::Voice::SendSMS can only send SMS messages. It
 can't receive them, retrieve the history of sent messages, or access
 any other Google Voice features.
+
+=for Pod::Coverage
+\w+URL
