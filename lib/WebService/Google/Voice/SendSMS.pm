@@ -24,6 +24,8 @@ use warnings;
 use LWP::UserAgent 6 ();
 use HTTP::Request::Common ();
 
+#use Smart::Comments '###';
+
 our $VERSION = '0.01';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
@@ -103,7 +105,9 @@ sub _make_request
     $req->referer($self->{lastURL});
   }
 
+  ### Request : $req->as_string
   my $rsp = $self->{ua}->request($req);
+  ### Response : $rsp->as_string
 
   if ($rsp->is_success) {
     $self->{lastURL} = $rsp->request->uri;
