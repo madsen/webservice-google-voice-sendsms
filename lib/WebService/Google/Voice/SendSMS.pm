@@ -27,7 +27,7 @@ use HTTP::Request::Common ();
 
 #use Smart::Comments '###';
 
-our $VERSION = '0.01';
+our $VERSION = '1.000';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 #=====================================================================
@@ -199,6 +199,10 @@ __END__
 
 WebService::Google::Voice::SendSMS allows you to send SMS messages
 using your Google Voice account (L<https://www.google.com/voice>).
+It only works if you're able to send SMS messages from the Google
+Voice website. There should be a TEXT button next to the CALL button
+in the upper left corner. If that doesn't work, then SendSMS won't
+work either.
 
 
 =head1 SEE ALSO
