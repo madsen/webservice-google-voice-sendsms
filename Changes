@@ -1,6 +1,6 @@
 Revision history for WebService-Google-Voice-SendSMS
 
-1.000  NOT
+1.000  2014-06-07
 	- Document that you must see a TEXT button in Google Voice (RT#92040)
 
 0.01   2013-02-14
