@@ -27,7 +27,7 @@ use HTTP::Request::Common ();
 
 #use Smart::Comments '###';
 
-our $VERSION = '1.000';
+our $VERSION = '1.001';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 #=====================================================================
@@ -228,6 +228,28 @@ variables that configure that (especially the SSL options).
 WebService::Google::Voice::SendSMS can only send SMS messages. It
 can't receive them, retrieve the history of sent messages, or access
 any other Google Voice features.
+
+=head2 Troubleshooting
+
+If WebService::Google::Voice::SendSMS doesn't work for you, the first
+thing to check is that you can send a SMS message by logging in to the
+Google Voice website in your browser.  If that doesn't work, you'll
+have to try to work the problem out with Google.
+
+If you're getting a HTTP 403 (Forbidden) error, then you may have
+supplied the wrong username or password.  If those are correct, you
+may need to log in to your Google account and enable "Access for less
+secure apps".  To do that, go to L<https://google.com>, log in if
+necessary, click your username in the upper right corner, click
+Account, click Security, and make sure it says Enabled next to "Access
+for less secure apps".  If it doesn't, click Settings and change it.
+(If anyone knows how this module can use a more secure login method,
+I'd be happy to hear about it.)
+
+If it's still not working, please install the L<Smart::Comments> module,
+uncomment the C<use Smart::Comments> line at the beginning of this
+module, and include the debugging output in your bug report.  (Be sure
+to sanitize your password.)
 
 =for Pod::Coverage
 \w+URL
