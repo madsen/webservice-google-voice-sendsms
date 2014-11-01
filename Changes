@@ -1,9 +1,11 @@
 Revision history for WebService-Google-Voice-SendSMS
 
-1.001  NOT
+1.001  2014-11-01
+	- No functional changes
 	- Add Troubleshooting section to docs (RT#99827)
 
 1.000  2014-06-07
+	- No functional changes
 	- Document that you must see a TEXT button in Google Voice (RT#92040)
 
 0.01   2013-02-14
