@@ -1,6 +1,6 @@
 Revision history for WebService-Google-Voice-SendSMS
 
-1.002  NOT
+1.002  2015-02-21
 	- Fetch https://www.google.com/voice/m/sms to get XSRF token
 	  (This is a smaller page than https://www.google.com/voice/m/)
 
