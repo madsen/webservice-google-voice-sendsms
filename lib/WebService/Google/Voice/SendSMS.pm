@@ -27,12 +27,12 @@ use HTTP::Request::Common ();
 
 #use Smart::Comments '###';
 
-our $VERSION = '1.001';
+our $VERSION = '1.002';
 # This file is part of {{$dist}} {{$dist_version}} ({{$date}})
 
 #=====================================================================
 
-sub inboxURL { 'https://www.google.com/voice/m/' }
+sub formURL { 'https://www.google.com/voice/m/sms' }
 sub loginURL { 'https://www.google.com/accounts/ClientLogin' }
 sub smsURL   { 'https://www.google.com/voice/m/sendsms' }
 #---------------------------------------------------------------------
@@ -138,11 +138,13 @@ update is available, report a bug.
 =cut
 
 #---------------------------------------------------------------------
+# Fetch the XSRF token from Google Voice
+
 sub _get_rnr_se
 {
   my $self = shift;
 
-  my $rsp = $self->_make_request(HTTP::Request::Common::GET($self->inboxURL));
+  my $rsp = $self->_make_request(HTTP::Request::Common::GET($self->formURL));
 
   my $cref = $rsp->decoded_content(ref => 1);
   $$cref =~ /<input[^>]*?name="_rnr_se"[^>]*?value="([^"]*)"/s
